@@ -1,497 +1,267 @@
-# Collective Wisdom
-
-Autonomous AI Diagnostics & Digital Triplet Control Room for industrial manufacturing operations.
+# collective-wisdom
+Autonomous AI Diagnostics & Digital Triplet Control Room
 
 [![Node.js](https://img.shields.io/badge/Node.js-22%20LTS-green.svg)](https://nodejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.0-646CFF.svg)](https://vite.dev/)
-[![React](https://img.shields.io/badge/React-19-61DAFB.svg)](https://react.dev/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind%20CSS-v4.0-38B2AC.svg)](https://tailwindcss.com/)
 [![Firebase](https://img.shields.io/badge/Firebase-Auth%20%26%20Firestore-FFCA28.svg?logo=firebase)](https://firebase.google.com/)
-[![Gemini](https://img.shields.io/badge/Gemini-AI%20Diagnostics-4285F4.svg)](https://ai.google.dev/)
 
-**Collective Wisdom** is a web-based AI diagnostics and digital triplet control room. It combines Google sign-in, Firestore-based operational records, collaborative incident feeds, and Gemini-powered diagnostic support for manufacturing and logistics teams.
+**Collective Wisdom** is a modern, high-fidelity Autonomous AI Diagnostics & Digital Triplet control room platform designed for high-availability industrial manufacturing plants. It couples real-time sensory log monitoring, cooperative Expert Hub chats, and automated anomaly resolution runbooks utilizing Google Gemini AIs.
 
----
 
-## Key Features
 
-- **Google Authentication** through Firebase Authentication.
-- **Collaborative incident feed** for operator, quality, logistics, and maintenance communication.
-- **Digital triplet dashboard** for monitoring equipment status, telemetry, and operational warnings.
-- **Knowledge nodes** for storing SOPs, lessons learned, and technical guidance.
-- **Gemini AI diagnostics** for AI-assisted incident analysis and recovery recommendations.
-- **Firestore backend** for incidents, knowledge records, telemetry data, and dashboard statistics.
+https://github.com/user-attachments/assets/cecd6514-b260-4c15-bcaa-2ed682b57e81
+
 
 ---
 
-## Technology Stack
+## 🏗️ Swimlane System Architecture
 
-| Layer | Main tools |
-|---|---|
-| Frontend | React, Vite, TypeScript, Tailwind CSS |
-| Backend | Node.js, Express, TypeScript, `tsx` |
-| Authentication | Firebase Authentication with Google provider |
-| Database | Cloud Firestore |
-| AI | Google Gemini API, Google ADK |
-| Deployment target | Google Cloud Run, GitHub Actions |
+The following diagram illustrates how user actions across roles flow from inputs down into frontend layout triggers, backend endpoint execution, autonomous Gemini AI model reasoning, and persistent Firestore collections.
+
+```mermaid
+graph LR
+    %% Subgraph Styling Definitions
+    classDef userStyle fill:#fafafa,stroke:#64748b,stroke-width:2px,color:#0f172a;
+    classDef feStyle fill:#f0fdfa,stroke:#0d9488,stroke-width:2px,color:#0f172a;
+    classDef beStyle fill:#f0f7ff,stroke:#0284c7,stroke-width:2px,color:#0f172a;
+    classDef aiStyle fill:#faf5ff,stroke:#9333ea,stroke-width:2px,color:#0f172a;
+    classDef dbStyle fill:#fff7ed,stroke:#ea580c,stroke-width:2px,color:#0f172a;
+
+    subgraph UserSpace ["👤 Operator & Supervisor Inputs"]
+        direction TB
+        U_Auth["🔑 Google Credentials Sign-In"]
+        U_Monitor["📊 View Real-Time Sensory Logs"]
+        U_Triage["📝 Log Manual Mechanical Incident"]
+        U_RequestAI["💬 Invoke Multi-Turn AI Diagnostics"]
+        U_Resolve["✅ Execute Repair & Recalibration"]
+        U_SearchKB["🔍 Query Grounded SOP Nodes"]
+        U_Demo["🚀 Run Walkthrough Investor Demo"]
+    end
+
+    subgraph FE ["💻 Frontend UI Layer (React + Tailwind)"]
+        direction TB
+        FE_Auth["🔐 Firebase Identity Verification Guard"]
+        FE_Dashboard["🖥️ Glassmorphic Control Room Center"]
+        FE_Triplet["📈 Live Digital Triplet (Recharts Visuals)"]
+        FE_Feed["🗣️ Operator Collaborative Chats & Incidents"]
+        FE_KB["📚 SOP Knowledge Base Viewer Panel"]
+        FE_Demo["🎬 Automated Demo Slideshow Walkthrough"]
+    end
+
+    subgraph BE ["⚙️ Express Backend Gateway Server"]
+        direction TB
+        BE_AuthGuard["🔒 Custom Firebase JWT Auth Middleware"]
+        BE_Telemetry["📡 Telemetry Streamer & Stats Route"]
+        BE_Incidents["📋 Incidents Registry (Create/Resolve)"]
+        BE_KB_Api["📂 SOP Knowledge Base API Handler"]
+        BE_Agent["🤖 AI Diagnostic Orchestration Core"]
+    end
+
+    subgraph AI ["🧠 Autonomous Gemini AI Engine"]
+        direction TB
+        AI_Context["🔄 Context Aggregator & System Guidelines"]
+        AI_Model["🧠 Gemini Pro (via @google/genai)"]
+        AI_Output["📦 JSON Parsing (Analysis, Offsets, Lessons)"]
+    end
+
+    subgraph DB ["🗄️ Firestore Database & Memory Storage"]
+        direction TB
+        DB_Telemetry["🗃️ Telemetry Streams & Device Readings"]
+        DB_Incidents["🗃️ Incidents Log & Message History"]
+        DB_KB["🗃️ Grounded SOPs & AI Lessons-Learned"]
+    end
+
+    %% Apply Classes
+    class U_Auth,U_Monitor,U_Triage,U_RequestAI,U_Resolve,U_SearchKB,U_Demo userStyle;
+    class FE_Auth,FE_Dashboard,FE_Triplet,FE_Feed,FE_KB,FE_Demo feStyle;
+    class BE_AuthGuard,BE_Telemetry,BE_Incidents,BE_KB_Api,BE_Agent beStyle;
+    class AI_Context,AI_Model,AI_Output aiStyle;
+    class DB_Telemetry,DB_Incidents,DB_KB dbStyle;
+
+    %% Connect User Space to Frontend Layer
+    U_Auth --> FE_Auth
+    U_Monitor --> FE_Triplet
+    U_Triage --> FE_Feed
+    U_RequestAI --> FE_Feed
+    U_Resolve --> FE_Feed
+    U_SearchKB --> FE_KB
+    U_Demo --> FE_Demo
+
+    %% Connect Frontend to Backend
+    FE_Auth -->|JWT Token| BE_AuthGuard
+    FE_Dashboard -->|GET /api/stats| BE_Telemetry
+    FE_Triplet -->|GET /api/incidents| BE_Telemetry
+    FE_Feed -->|POST /api/incidents| BE_Incidents
+    FE_Feed -->|POST /api/agent/analyze| BE_Agent
+    FE_Feed -->|POST /api/incidents/:id/resolve| BE_Incidents
+    FE_KB -->|GET /api/knowledge| BE_KB_Api
+    FE_Demo -->|Auto Sequencer Actions| FE_Feed
+
+    %% Connect Backend to Database
+    BE_Telemetry -->|Read| DB_Telemetry
+    BE_Incidents -->|Write / Update| DB_Incidents
+    BE_KB_Api -->|Read| DB_KB
+
+    %% Connect Backend to AI & AI to Database
+    BE_Agent -->|Compile Payload| AI_Context
+    AI_Context -->|Query & Instructions| AI_Model
+    AI_Model -->|Return Text JSON| AI_Output
+    AI_Output -->|Parse & Return Runbook| BE_Agent
+    BE_Agent -->|Save Response Comment| DB_Incidents
+    BE_Agent -->|Persist Extract Lessons Learned| DB_KB
+
+    %% Real-time Sync and Loop Closure
+    DB_Incidents -.->|Reactive Sync| FE_Feed
+    DB_Telemetry -.->|Real-time Poll/Stream| FE_Triplet
+```
+---
+
+## 🤖 ADK Multi-Agent Collaboration Loop
+
+The platform leverages two specialized AI Agents orchestrated via the **Google ADK (`@google/adk`)** library. They collaborate through a persistent feedback loop, creating an expert learning flywheel that captures on-the-floor expertise and dynamically updates the plant's operational memory.
+
+```mermaid
+graph TD
+    %% Styling definitions
+    classDef operatorStyle fill:#fafafa,stroke:#64748b,stroke-width:2px,color:#0f172a;
+    classDef diagStyle fill:#faf5ff,stroke:#9333ea,stroke-width:2px,color:#0f172a;
+    classDef knowStyle fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#0f172a;
+    classDef storeStyle fill:#fff7ed,stroke:#ea580c,stroke-width:2px,color:#0f172a;
+
+    %% Nodes
+    Operator(["👤 Plant Operator / Supervisor"])
+    
+    subgraph ADK_Core ["Google ADK Orchestration Core"]
+        DiagAgent["🧠 diagnostics-agent<br/>(AI Diagnostics & Runbooks)"]
+        KnowAgent["🧠 knowledge-agent<br/>(SOP Synthesis & Search)"]
+    end
+
+    subgraph Store ["Shared Knowledge & Incident Ledger"]
+        IncidentsDB[("🗃️ Incident Chat & Telemetry")]
+        KnowledgeDB[("🗃️ Grounded SOPs & Manuals")]
+    end
+
+    %% Apply Classes
+    class Operator operatorStyle;
+    class DiagAgent diagStyle;
+    class KnowAgent knowStyle;
+    class IncidentsDB,KnowledgeDB storeStyle;
+
+    %% Flows
+    Operator -->|1. Triggers Diagnostics| DiagAgent
+    Operator -->|4. Queries SOPs & Technical Specs| KnowAgent
+
+    %% Diagnostics Agent Interactions
+    DiagAgent -->|Reads Telemetry & History| IncidentsDB
+    DiagAgent -->|2. Posts Diagnosis & Recalibration| IncidentsDB
+    DiagAgent -->|3. Extracts 'Lessons Learned' SOP| KnowledgeDB
+
+    %% Knowledge Agent Interactions
+    KnowledgeDB -->|Loads Contextual SOPs & AI Lessons| KnowAgent
+    KnowAgent -->|5. Delivers Grounded Expert Guide| Operator
+
+    %% Real-Time Operator Loop
+    IncidentsDB -.->|Updates Real-time Dashboard| Operator
+```
+
+### 🔁 Operational Flywheel Dynamics:
+1. **Anomaly & Diagnosis**: When a sensory limit is breached, the operator invokes the `diagnostics-agent`. It analyzes real-time sensor metrics and outputs a precise recalibration proposal (recalibration steps, temperature offsets, safety comments).
+2. **Knowledge Synthesis**: If the `diagnostics-agent` identifies a novel mechanical resolution pattern, it extracts an operational **"Lesson Learned"** as a structured summary.
+3. **Database Grounding**: This lesson is automatically written as a new **Knowledge Node** in the plant's database.
+4. **Contextual Grounding**: When operators ask technical questions, the `knowledge-agent` reads the global manuals along with the *newly synthesized AI lessons*, producing up-to-date, grounded troubleshooting guides in real time.
 
 ---
 
-## Local Development Setup
+## ✨ Core Capabilities
 
-This guide assumes that you are running the app on Windows using VS Code.
+*   **Google Identity Protection**: Access-restricted dashboard using Google Firebase Authentication and premium, glassmorphic login guards.
+*   **Active Operator Dropdown**: Interactive navigation header displaying live Google profile details, real-time activity status, and secure signOut toggles.
+*   **Digital Triplet sensory tracking**: Monitor continuous mechanical line signals (e.g. `CNV-01`, `Sens-1`) with status trackers.
+*   **Cooperative Operator Feed**: Real-time expert chat feeds allowing operator-to-operator and operator-to-AI diagnosis tracking.
+*   **Gemini AI Diagnosis Integration**: Invoke custom telemetry summaries, automated risk analyses, and actionable recovery recommendations via the Google `@google/genai` library.
 
-### 1. Install Node.js
+---
 
-Install **Node.js LTS** from the official Node.js website. The installer also includes `npm`.
+## 🛠️ Local Development
 
-After installation, restart VS Code and check:
+### Prerequisites
+*   **Node.js 22 LTS** or newer
+*   **Google Cloud SDK (`gcloud` CLI)** — optional, but recommended for credential handling
+*   A **Firebase Project** with Google Authentication and Cloud Firestore enabled
 
+### 1. Repository Setup & Dependencies
+Clone the repository and install the production/development dependencies:
 ```bash
-node -v
-npm.cmd -v
+npm install
 ```
 
-If PowerShell blocks `npm`, use `npm.cmd` instead.
-
----
-
-### 2. Install project dependencies
-
-Open the project folder in VS Code. The folder must contain:
-
-```text
-package.json
-server.ts
-db.ts
-src/
-.env.example
-```
-
-Then run:
-
-```bash
-npm.cmd install
-```
-
----
-
-## Environment Variables
-
-Create a file named `.env` in the project root.
-
-Do **not** upload `.env` to GitHub.
-
-### Required `.env` format
-
+### 2. Configure Local Environment Variables
+Create a `.env` file in the project root:
 ```env
-# Gemini API key for AI diagnostics
+# Google Gemini API Access (Required for AI diagnostic operations)
 GEMINI_API_KEY="your_gemini_api_key"
 
-# Local app URL
+# Application Endpoint (used for callbacks and links)
 APP_URL="http://localhost:3000"
-
-# Firebase Web App configuration
-VITE_FIREBASE_API_KEY="your_firebase_web_api_key"
-VITE_FIREBASE_AUTH_DOMAIN="your_project.firebaseapp.com"
-VITE_FIREBASE_PROJECT_ID="your_project_id"
-VITE_FIREBASE_STORAGE_BUCKET="your_project.firebasestorage.app"
-VITE_FIREBASE_MESSAGING_SENDER_ID="your_sender_id"
-VITE_FIREBASE_APP_ID="your_firebase_app_id"
 ```
 
-### Notes
+### 3. Setup Database Credentials
+By default, the backend connects to Cloud Firestore. 
+*   **Service Account Option**: Place your downloaded Service Account key file (`collective-bento-firebase-adminsdk-fbsvc-*.json`) in the project root. The backend will automatically detect and bind to it.
+*   **Application Default Credentials (ADC)**: Alternatively, log in via your local shell to automatically forward credentials to the application:
+    ```bash
+    gcloud auth application-default login
+    ```
 
-- `GEMINI_API_KEY` comes from **Google AI Studio**.
-- `VITE_FIREBASE_*` values come from **Firebase Console → Project settings → General → Your apps → Web app**.
-- `APP_URL` should be `http://localhost:3000` because this project runs through `server.ts`, not the default Vite port.
-
----
-
-## Firebase Setup
-
-The app needs three Firebase components:
-
-1. Firebase Authentication
-2. Cloud Firestore
-3. Firebase Admin SDK service account key
-
-### 1. Create a Firebase project
-
-Go to Firebase Console and create a project, for example:
-
-```text
-Collective Wisdom
-```
-
-Google Analytics is optional for local testing.
-
----
-
-### 2. Register a Web App
-
-In Firebase Console:
-
-```text
-Project settings → General → Your apps → Web app
-```
-
-Register a web app, for example:
-
-```text
-collective-wisdom-web
-```
-
-Copy the Firebase config values into `.env` using the `VITE_FIREBASE_*` names shown above.
-
----
-
-### 3. Enable Google Authentication
-
-In Firebase Console:
-
-```text
-Security → Authentication → Get started → Sign-in method → Google
-```
-
-Then:
-
-1. Enable Google sign-in.
-2. Set a public-facing project name, for example `Collective Wisdom`.
-3. Select your support email.
-4. Save.
-
-Also confirm that `localhost` is listed under:
-
-```text
-Authentication → Settings → Authorized domains
-```
-
----
-
-### 4. Create Cloud Firestore
-
-In Firebase Console:
-
-```text
-Databases & Storage → Firestore
-```
-
-Choose:
-
-```text
-Standard edition
-Start in test mode
-```
-
-Select a nearby location, such as:
-
-```text
-asia-northeast1
-```
-
-Firestore test mode is acceptable for local development. For production, replace test rules with secure rules.
-
----
-
-### 5. Add Firebase Admin SDK credentials
-
-The backend uses Firebase Admin SDK to access Firestore.
-
-In Firebase Console:
-
-```text
-Project settings → Service accounts → Firebase Admin SDK → Generate new private key
-```
-
-Download the JSON file, then rename it to:
-
-```text
-serviceAccountKey.json
-```
-
-Place it in the project root, at the same level as:
-
-```text
-package.json
-server.ts
-db.ts
-.env
-serviceAccountKey.json
-```
-
-The backend should point to this file in `db.ts`:
-
-```ts
-const serviceAccountPath = path.resolve(process.cwd(), 'serviceAccountKey.json');
-```
-
-When the file is detected correctly, the terminal should show:
-
-```text
-Initializing Firebase Admin using local service account key...
-```
-
-It should not show:
-
-```text
-Local service account key not found
-```
-
----
-
-## Running the App Locally
-
-Start the development server:
-
+### 4. Running the Dev Server
+Launch the unified development build (launches both the Vite frontend dev compiler and the Express API server):
 ```bash
-npm.cmd run dev
+npm run dev
 ```
-
-Open:
-
-```text
-http://localhost:3000
-```
-
-The app should display the Collective Wisdom login screen. After Google sign-in, the dashboard should load data from Firestore.
+Open [http://localhost:3000](http://localhost:3000) to view the live dashboard.
 
 ---
 
-## Common Setup Errors
+## 🧪 Testing & Code Quality
 
-### `npm is not recognized`
+Validate TypeScript definitions, lint-rules, and compile targets:
 
-Node.js is not installed, or VS Code was opened before Node.js was added to PATH.
-
-Fix:
-
-```text
-Install Node.js LTS → restart VS Code → run node -v and npm.cmd -v
-```
-
----
-
-### `npm.ps1 cannot be loaded because running scripts is disabled`
-
-PowerShell blocked the `npm` script.
-
-Use:
-
-```bash
-npm.cmd install
-npm.cmd run dev
-```
+*   **Type Check & Linting**:
+    ```bash
+    npm run lint
+    ```
+*   **Production Bundling**:
+    ```bash
+    npm run build
+    ```
 
 ---
 
-### `Cannot find package.json`
-
-The terminal is in the wrong folder.
-
-Open the project folder in VS Code or run:
-
-```bash
-cd "path_to_collective_wisdom_project"
-```
-
-Then confirm:
-
-```bash
-dir package.json
-```
-
----
-
-### `API key must be provided via GEMINI_API_KEY`
-
-The Gemini key is missing from `.env`.
-
-Fix:
-
-```env
-GEMINI_API_KEY="your_gemini_api_key"
-```
-
-Then restart the server.
-
----
-
-### `Firebase: Error (auth/invalid-api-key)`
-
-The Firebase Web App variables are missing or wrong.
-
-Check:
-
-```env
-VITE_FIREBASE_API_KEY
-VITE_FIREBASE_AUTH_DOMAIN
-VITE_FIREBASE_PROJECT_ID
-VITE_FIREBASE_STORAGE_BUCKET
-VITE_FIREBASE_MESSAGING_SENDER_ID
-VITE_FIREBASE_APP_ID
-```
-
-Then restart the server.
-
----
-
-### `Firebase: Error (auth/configuration-not-found)`
-
-Google sign-in is not enabled in Firebase Authentication.
-
-Fix:
-
-```text
-Firebase Console → Authentication → Sign-in method → Google → Enable
-```
-
----
-
-### `/api/stats 500`, `/api/incidents 500`, or `/api/knowledge 500`
-
-The backend cannot read Firestore.
-
-Check these items:
-
-1. Firestore database has been created.
-2. `serviceAccountKey.json` is in the project root.
-3. `db.ts` points to `serviceAccountKey.json`.
-4. The server was restarted after adding the key.
-
-If the terminal says:
-
-```text
-Unable to detect a Project Id in the current environment
-```
-
-then the Firebase Admin service account key is missing, incorrectly named, or not detected.
-
----
-
-## Protecting Secrets Before GitHub Upload
-
-Before uploading the project to GitHub, confirm that `.gitignore` contains:
-
-```gitignore
-node_modules/
-dist/
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Firebase and Google Cloud keys
-serviceAccountKey.json
-collective-wisdom-firebase-adminsdk-*.json
-collective-bento-firebase-adminsdk-*.json
-*-firebase-adminsdk-*.json
-*.private.json
-*.key
-*.pem
-```
-
-Never commit:
-
-```text
-.env
-serviceAccountKey.json
-Firebase Admin SDK JSON files
-Gemini API keys
-```
-
----
-
-## Build and Quality Check
-
-Run a TypeScript check:
-
-```bash
-npm.cmd run lint
-```
-
-Build the app:
-
-```bash
-npm.cmd run build
-```
-
-Run the production build locally:
-
-```bash
-npm.cmd start
-```
-
----
-
-## GitHub Upload
-
-After confirming that private files are ignored, upload the project:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
-git push -u origin main
-```
-
-Before pushing, check what Git will upload:
-
-```bash
-git status
-```
-
-Make sure these files do not appear:
-
-```text
-.env
-serviceAccountKey.json
-```
-
----
-
-## Production Deployment Notes
-
-This project can be deployed to Google Cloud Run. For production deployment, configure secrets and environment variables in the hosting platform rather than committing them into the repository.
-
-Required production environment variables:
-
-```env
-GEMINI_API_KEY="production_gemini_key"
-APP_URL="https://your-cloud-run-url"
-
-VITE_FIREBASE_API_KEY="production_firebase_web_api_key"
-VITE_FIREBASE_AUTH_DOMAIN="your_project.firebaseapp.com"
-VITE_FIREBASE_PROJECT_ID="your_project_id"
-VITE_FIREBASE_STORAGE_BUCKET="your_project.firebasestorage.app"
-VITE_FIREBASE_MESSAGING_SENDER_ID="your_sender_id"
-VITE_FIREBASE_APP_ID="your_firebase_app_id"
-```
-
-For backend Firestore access in production, use a secure service account method provided by Google Cloud Run or GitHub Actions. Do not store service account keys directly in the repository.
-
----
-
-## Project Naming
-
-The current project name is:
-
-```text
-Collective Wisdom
-```
-
-Use this visible name in the UI, Firebase public-facing project name, README, and deployment labels.
-
-Use this technical identifier where lowercase IDs are needed:
-
-```text
-collective-wisdom
-```
-
----
-
-## License
-
-Add your license information here.
+## 🚀 Production Deployment (Google Cloud Run & GitHub Actions)
+
+The application incorporates a robust GitHub Actions deployment pipeline located in `.github/workflows/deploy.yml`. The pipeline automates multi-stage Docker builds, pushes the container to Artifact Registry, and deploys it to Cloud Run on pushes to the `main` branch.
+
+### 1. GitHub Repository Variables
+Configure these variables under **Settings** ➔ **Secrets and variables** ➔ **Actions** ➔ **Variables**:
+
+*   `PROJECT_ID`: Your Google Cloud project ID (e.g., `collective-bento`).
+*   `SERVICE_NAME`: The target Google Cloud Run service name (e.g., `collective-bento-service`).
+*   `REGION`: The target deployment region (e.g., `us-central1`).
+*   `DOCKER_IMAGE_URL`: Your Google Artifact Registry Docker image destination link (e.g., `us-central1-docker.pkg.dev/collective-bento/collective-bento-repo/collective-bento`).
+*   `VITE_API_URL`: The production endpoint url of your Cloud Run instance.
+
+### 2. GitHub Repository Secrets
+Configure this variable under **Settings** ➔ **Secrets and variables** ➔ **Actions** ➔ **Secrets**:
+
+*   `GCP_SA_KEY`: The raw text contents of your GCP Service Account JSON key file. 
+    *(Requires roles: Artifact Registry Writer, Cloud Run Developer, Service Account User).*
+
+### 3. Setting Gemini API Key on Cloud Run
+To enable Gemini AI capabilities in production, set the environment variable on your Cloud Run Service:
+1. Navigate to your Service on the **Cloud Run Console**.
+2. Select **Edit & Deploy New Revision**.
+3. Under the **Variables** tab, add a new environment variable:
+   - **Name**: `GEMINI_API_KEY`
+   - **Value**: *[Your active Google Gemini API Key]*
+4. Click **Deploy**.
