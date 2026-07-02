@@ -1,4 +1,4 @@
-# collective-wisdom
+# Collective Wisdom
 Autonomous AI Diagnostics & Digital Triplet Control Room
 
 [![Node.js](https://img.shields.io/badge/Node.js-22%20LTS-green.svg)](https://nodejs.org/)
@@ -7,11 +7,6 @@ Autonomous AI Diagnostics & Digital Triplet Control Room
 [![Firebase](https://img.shields.io/badge/Firebase-Auth%20%26%20Firestore-FFCA28.svg?logo=firebase)](https://firebase.google.com/)
 
 **Collective Wisdom** is a modern, high-fidelity Autonomous AI Diagnostics & Digital Triplet control room platform designed for high-availability industrial manufacturing plants. It couples real-time sensory log monitoring, cooperative Expert Hub chats, and automated anomaly resolution runbooks utilizing Google Gemini AIs.
-
-
-
-https://github.com/user-attachments/assets/cecd6514-b260-4c15-bcaa-2ed682b57e81
-
 
 ---
 
