@@ -1,0 +1,23 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Firebase & GCP keys
+*-firebase-adminsdk-*.json
+*.private.json
+*.key
+*.pem
+serviceAccountKey.json
+collective-bento-firebase-adminsdk-*.json
+collective-wisdom-firebase-adminsdk-*.json

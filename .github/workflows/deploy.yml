@@ -1,0 +1,120 @@
+name: Deploy Collective Bento
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
+  DOCKER_IMAGE_URL: ${{ secrets.DOCKER_IMAGE_URL }}
+  REGION: ${{ secrets.REGION }}
+  VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - "assets/**"
+      - "server.ts"
+      - "db.ts"
+      - "package.json"
+      - "package-lock.json"
+      - "Dockerfile"
+      - "tsconfig.json"
+      - "vite.config.ts"
+      - "index.html"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+jobs:
+  # ─────────────────────────────────────────────
+  # 1. BUILD — compile & push Docker image
+  # ─────────────────────────────────────────────
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: ${{ env.VITE_API_URL }}
+    steps:
+      - name: Trim Environment Variables
+        run: |
+          echo "SERVICE_NAME=$(echo '${{ secrets.SERVICE_NAME }}' | tr -d '[:space:]')" >> $GITHUB_ENV
+          echo "PROJECT_ID=$(echo '${{ secrets.PROJECT_ID }}' | tr -d '[:space:]')" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_URL=$(echo '${{ secrets.DOCKER_IMAGE_URL }}' | tr -d '[:space:]')" >> $GITHUB_ENV
+          echo "REGION=$(echo '${{ secrets.REGION }}' | tr -d '[:space:]')" >> $GITHUB_ENV
+          echo "VITE_API_URL=$(echo '${{ secrets.VITE_API_URL }}' | tr -d '[:space:]')" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.docker/cache
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg VITE_API_URL=${{ env.VITE_API_URL }} \
+            -t ${{ env.DOCKER_IMAGE_URL }}:${{ github.sha }} \
+            -t ${{ env.DOCKER_IMAGE_URL }}:latest \
+            ./
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ env.DOCKER_IMAGE_URL }}:${{ github.sha }}
+          docker push ${{ env.DOCKER_IMAGE_URL }}:latest
+
+  # ─────────────────────────────────────────────
+  # 2. DEPLOY — roll out to Cloud Run
+  # ─────────────────────────────────────────────
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ env.VITE_API_URL }}
+    steps:
+      - name: Trim Environment Variables
+        run: |
+          echo "SERVICE_NAME=$(echo '${{ secrets.SERVICE_NAME }}' | tr -d '[:space:]')" >> $GITHUB_ENV
+          echo "PROJECT_ID=$(echo '${{ secrets.PROJECT_ID }}' | tr -d '[:space:]')" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_URL=$(echo '${{ secrets.DOCKER_IMAGE_URL }}' | tr -d '[:space:]')" >> $GITHUB_ENV
+          echo "REGION=$(echo '${{ secrets.REGION }}' | tr -d '[:space:]')" >> $GITHUB_ENV
+          echo "VITE_API_URL=$(echo '${{ secrets.VITE_API_URL }}' | tr -d '[:space:]')" >> $GITHUB_ENV
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image ${{ env.DOCKER_IMAGE_URL }}:${{ github.sha }} \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --allow-unauthenticated

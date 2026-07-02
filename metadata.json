@@ -1,0 +1,6 @@
+{
+  "name": "Collective Wisdom",
+  "description": "Collaborative control room and digital twin feed for plant operations powered by Gemini agent reasoning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
